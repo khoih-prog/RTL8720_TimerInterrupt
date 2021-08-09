@@ -23,7 +23,7 @@
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
-  1.0.0   K Hoang      30/10/2020 Initial coding for RTL8720DN, RTL8722DM and RTL8722CSM
+  1.0.0   K Hoang      09/08/2021 Initial coding for RTL8720DN, RTL8722DM and RTL8722CSM
 *****************************************************************************************************************************/
 
 #include "RTL8720_ISR_Timer.h"
