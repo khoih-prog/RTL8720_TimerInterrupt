@@ -42,10 +42,10 @@
   * [  6. **ISR_16_Timers_Array_Complex**](examples/ISR_16_Timers_Array_Complex).
 * [Example ISR_16_Timers_Array_Complex](#example-isr_16_timers_array_complex)
 * [Debug Terminal Output Samples](#debug-terminal-output-samples)
-  * [1. ISR_16_Timers_Array_Complex on RTL8720DN](#1-isr_16_timers_array_complex-on-rtl8720)
-  * [2. TimerInterruptTest on RTL8720DN](#2-timerinterrupttest-on-rtl8720)
-  * [3. Argument_None on RTL8720DN](#3-argument_none-on-rtl8720)
-  * [4. Change_Interval on RTL8720DN](#4-change_interval-on-rtl8720)
+  * [1. ISR_16_Timers_Array_Complex on RTL8720DN](#1-isr_16_timers_array_complex-on-rtl8720dn)
+  * [2. TimerInterruptTest on RTL8720DN](#2-timerinterrupttest-on-rtl8720dn)
+  * [3. Argument_None on RTL8720DN](#3-argument_none-on-rtl8720dn)
+  * [4. Change_Interval on RTL8720DN](#4-change_interval-on-rtl8720dn)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Releases](#releases)
@@ -188,8 +188,10 @@ To re-use the **new h-only** way, just
 
 There are only 4 hardware timers in RTL8720DN, RTL8722DM and RTL8722CSM.
 
-**TIMER0**, reserved and used in us_tick(), wait_ms() functions. Users are not recommended to use
+**TIMER0**, reserved and used in us_tick(), wait_ms() functions. Users are not recommended to use.
+
 **TIMER1**, used in APP_TIM_ID. Users are not recommended to use
+
 **TIMER2 and TIMER3** are ready and OK to be used.
 
 
