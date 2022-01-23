@@ -19,11 +19,12 @@
   Based on BlynkTimer.h
   Author: Volodymyr Shymanskyy
 
-  Version: 1.0.0
+  Version: 1.1.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      09/08/2021 Initial coding for RTL8720DN, RTL8722DM and RTL8722CSM
+  1.1.0   K.Hoang      22/01/2022 Fix `multiple-definitions` linker error
 *****************************************************************************************************************************/
 
 #pragma once
