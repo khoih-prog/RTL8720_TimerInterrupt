@@ -31,7 +31,6 @@
 #ifndef ISR_TIMER_GENERIC_IMPL_H
 #define ISR_TIMER_GENERIC_IMPL_H
 
-//#include "RTL8720_ISR_Timer.h"
 #include <string.h>
 
 RTL8720_ISR_Timer::RTL8720_ISR_Timer()
@@ -145,7 +144,7 @@ int RTL8720_ISR_Timer::findFirstFreeSlot()
 }
 
 
-int RTL8720_ISR_Timer::setupTimer(unsigned long d, void* f, void* p, bool h, unsigned n) 
+int RTL8720_ISR_Timer::setupTimer(const unsigned long& d, void* f, void* p, bool h, const unsigned& n) 
 {
   int freeTimer;
 
@@ -179,37 +178,37 @@ int RTL8720_ISR_Timer::setupTimer(unsigned long d, void* f, void* p, bool h, uns
 }
 
 
-int RTL8720_ISR_Timer::setTimer(unsigned long d, timerISRCallback f, unsigned n) 
+int RTL8720_ISR_Timer::setTimer(const unsigned long& d, timerISRCallback f, const unsigned& n) 
 {
   return setupTimer(d, (void *)f, NULL, false, n);
 }
 
-int RTL8720_ISR_Timer::setTimer(unsigned long d, timerISRCallback_p f, void* p, unsigned n) 
+int RTL8720_ISR_Timer::setTimer(const unsigned long& d, timerISRCallback_p f, void* p, const unsigned& n) 
 {
   return setupTimer(d, (void *)f, p, true, n);
 }
 
-int RTL8720_ISR_Timer::setInterval(unsigned long d, timerISRCallback f) 
+int RTL8720_ISR_Timer::setInterval(const unsigned long& d, timerISRCallback f) 
 {
   return setupTimer(d, (void *)f, NULL, false, TIMER_RUN_FOREVER);
 }
 
-int RTL8720_ISR_Timer::setInterval(unsigned long d, timerISRCallback_p f, void* p) 
+int RTL8720_ISR_Timer::setInterval(const unsigned long& d, timerISRCallback_p f, void* p) 
 {
   return setupTimer(d, (void *)f, p, true, TIMER_RUN_FOREVER);
 }
 
-int RTL8720_ISR_Timer::setTimeout(unsigned long d, timerISRCallback f) 
+int RTL8720_ISR_Timer::setTimeout(const unsigned long& d, timerISRCallback f) 
 {
   return setupTimer(d, (void *)f, NULL, false, TIMER_RUN_ONCE);
 }
 
-int RTL8720_ISR_Timer::setTimeout(unsigned long d, timerISRCallback_p f, void* p) 
+int RTL8720_ISR_Timer::setTimeout(const unsigned long& d, timerISRCallback_p f, void* p) 
 {
   return setupTimer(d, (void *)f, p, true, TIMER_RUN_ONCE);
 }
 
-bool RTL8720_ISR_Timer::changeInterval(unsigned numTimer, unsigned long d) 
+bool RTL8720_ISR_Timer::changeInterval(const unsigned& numTimer, const unsigned long& d) 
 {
   if (numTimer >= MAX_NUMBER_TIMERS) 
   {
@@ -229,7 +228,7 @@ bool RTL8720_ISR_Timer::changeInterval(unsigned numTimer, unsigned long d)
   return false;
 }
 
-void RTL8720_ISR_Timer::deleteTimer(unsigned timerId) 
+void RTL8720_ISR_Timer::deleteTimer(const unsigned& timerId) 
 {
   if (timerId >= MAX_NUMBER_TIMERS) 
   {
@@ -254,7 +253,7 @@ void RTL8720_ISR_Timer::deleteTimer(unsigned timerId)
 }
 
 // function contributed by code@rowansimms.com
-void RTL8720_ISR_Timer::restartTimer(unsigned numTimer) 
+void RTL8720_ISR_Timer::restartTimer(const unsigned& numTimer) 
 {
   if (numTimer >= MAX_NUMBER_TIMERS) 
   {
@@ -265,7 +264,7 @@ void RTL8720_ISR_Timer::restartTimer(unsigned numTimer)
 }
 
 
-bool RTL8720_ISR_Timer::isEnabled(unsigned numTimer) 
+bool RTL8720_ISR_Timer::isEnabled(const unsigned& numTimer) 
 {
   if (numTimer >= MAX_NUMBER_TIMERS) 
   {
@@ -276,7 +275,7 @@ bool RTL8720_ISR_Timer::isEnabled(unsigned numTimer)
 }
 
 
-void RTL8720_ISR_Timer::enable(unsigned numTimer) 
+void RTL8720_ISR_Timer::enable(const unsigned& numTimer) 
 {
   if (numTimer >= MAX_NUMBER_TIMERS) 
   {
@@ -287,7 +286,7 @@ void RTL8720_ISR_Timer::enable(unsigned numTimer)
 }
 
 
-void RTL8720_ISR_Timer::disable(unsigned numTimer) 
+void RTL8720_ISR_Timer::disable(const unsigned& numTimer) 
 {
   if (numTimer >= MAX_NUMBER_TIMERS) 
   {
@@ -323,7 +322,7 @@ void RTL8720_ISR_Timer::disableAll()
   }
 }
 
-void RTL8720_ISR_Timer::toggle(unsigned numTimer) 
+void RTL8720_ISR_Timer::toggle(const unsigned& numTimer) 
 {
   if (numTimer >= MAX_NUMBER_TIMERS) 
   {

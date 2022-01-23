@@ -36,7 +36,21 @@
 #endif
 
 #ifndef RTL8720_TIMER_INTERRUPT_VERSION
-  #define RTL8720_TIMER_INTERRUPT_VERSION       "RTL8720_TimerInterrupt v1.0.0"
+  #define RTL8720_TIMER_INTERRUPT_VERSION           "RTL8720_TimerInterrupt v1.1.0"
+  
+  #define RTL8720_TIMER_INTERRUPT_VERSION_MAJOR     1
+  #define RTL8720_TIMER_INTERRUPT_VERSION_MINOR     1
+  #define RTL8720_TIMER_INTERRUPT_VERSION_PATCH     0
+
+  #define RTL8720_TIMER_INTERRUPT_VERSION_INT       1001000  
+#endif
+
+#if defined(ARDUINO)
+  #if ARDUINO >= 100
+    #include <Arduino.h>
+  #else
+    #include <WProgram.h>
+  #endif
 #endif
 
 #include "TimerInterrupt_Generic_Debug.h"
@@ -60,7 +74,7 @@ typedef enum
 
 // TIMER0, reserved and used in us_tick(), wait_ms() functions. Users are not recommended to use
 // TIMER1, used in APP_TIM_ID. Users are not recommended to use
-uint32_t timer_mapping[GTIMER_MAX] = 
+static uint32_t timer_mapping[GTIMER_MAX] = 
 {
   TIMER0,
   TIMER1,
@@ -87,7 +101,7 @@ class RTL8720TimerInterrupt
 
   public:
 
-    RTL8720TimerInterrupt(uint8_t timer)
+    RTL8720TimerInterrupt(const uint8_t& timer)
     {
       if (timer >= GTIMER_MAX)
       {
@@ -106,11 +120,11 @@ class RTL8720TimerInterrupt
     }
 
     // frequency (in hertz)
-    bool setFrequency(float frequency, timerCallback callback)
+    bool setFrequency(const float& frequency, timerCallback callback)
     {
       if ( (_timer >= GTIMER_MAX) )
       {
-        TISR_LOGERROR(F("RTL8720TimerInterrupt init error"));
+        TISR_LOGERROR1(F("RTL8720TimerInterrupt init error, _timer >= "), GTIMER_MAX);
         
         return false;
       }
@@ -121,8 +135,8 @@ class RTL8720TimerInterrupt
       _timerCount = (uint32_t) (1000000.0f / _frequency);
       _callback   = callback;
       
-      TISR_LOGWARN(F("RTL8720TimerInterrupt"));
-      TISR_LOGWARN3(F("Request Interval (mS) ="), _timerCount / 1000, F(", _count ="), (uint32_t) (_timerCount));
+      TISR_LOGWARN3(F("_timerNo = "), _timer, F(", _fre (Hz) = "), _frequency);
+      TISR_LOGWARN3(F("Request Interval (mS) = "), _timerCount / 1000, F(", _count = "), (uint32_t) (_timerCount));
 
       gtimer_start_periodical(&_timerObj, _timerCount, (void *) callback, _timer);
 
@@ -130,18 +144,18 @@ class RTL8720TimerInterrupt
     }
 
     // interval (in microseconds)
-    bool setInterval(unsigned long interval, timerCallback callback)
+    bool setInterval(const unsigned long& interval, timerCallback callback)
     {
       return setFrequency((float) (1000000.0f / interval), callback);
     }
 
-    bool attachInterrupt(float frequency, timerCallback callback)
+    bool attachInterrupt(const float& frequency, timerCallback callback)
     {
       return setFrequency(frequency, callback);
     }
 
     // interval (in microseconds)
-    bool attachInterruptInterval(unsigned long interval, timerCallback callback)
+    bool attachInterruptInterval(const unsigned long& interval, timerCallback callback)
     {
       return setFrequency( (float) ( 1000000.0f / interval), callback);
     }

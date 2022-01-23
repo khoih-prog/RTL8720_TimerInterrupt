@@ -11,13 +11,13 @@
 
 ## Table of Contents
 
+* [Important Change from v1.1.0](#Important-Change-from-v110)
 * [Why do we need this RTL8720_TimerInterrupt library](#why-do-we-need-this-rtl8720_timerinterrupt-library)
   * [Features](#features)
   * [Why using ISR-based Hardware Timer Interrupt is better](#why-using-isr-based-hardware-timer-interrupt-is-better)
   * [Currently supported Boards](#currently-supported-boards)
   * [Important Notes about ISR](#important-notes-about-isr)
-* [Changelog](#changelog)
-  * [Releases v1.0.0](#releases-v100)
+* [Changelog](changelog.md)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
   * [Use Arduino Library Manager](#use-arduino-library-manager)
@@ -39,7 +39,8 @@
   * [  3. TimerInterruptTest](examples/TimerInterruptTest)
   * [  4. TimerInterruptLEDDemo](examples/TimerInterruptLEDDemo)
   * [  5. **Change_Interval**](examples/Change_Interval).
-  * [  6. **ISR_16_Timers_Array_Complex**](examples/ISR_16_Timers_Array_Complex).
+  * [  6. **ISR_16_Timers_Array_Complex**](examples/ISR_16_Timers_Array_Complex)
+  * [  7. **multiFileProject**](examples/multiFileProject) **New**
 * [Example ISR_16_Timers_Array_Complex](#example-isr_16_timers_array_complex)
 * [Debug Terminal Output Samples](#debug-terminal-output-samples)
   * [1. ISR_16_Timers_Array_Complex on RTL8720DN](#1-isr_16_timers_array_complex-on-rtl8720dn)
@@ -48,7 +49,6 @@
   * [4. Change_Interval on RTL8720DN](#4-change_interval-on-rtl8720dn)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
-* [Releases](#releases)
 * [Issues](#issues)
 * [TO DO](#to-do)
 * [DONE](#done)
@@ -59,6 +59,11 @@
 
 ---
 ---
+
+### Important Change from v1.1.0
+
+Please have a look at [HOWTO Fix `Multiple Definitions` Linker Error](#howto-fix-multiple-definitions-linker-error)
+
 
 ### Why do we need this [RTL8720_TimerInterrupt library](https://github.com/khoih-prog/RTL8720_TimerInterrupt)
 
@@ -116,20 +121,14 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ---
 ---
 
-## Changelog
-
-### Releases v1.0.0
-
-1. Initial release to support **RTL8720DN, RTL8722DM, RTM8722CSM, etc.** boards
-
----
----
-
 ## Prerequisites
 
- 1. [`Arduino IDE 1.8.15+` for Arduino](https://www.arduino.cc/en/Main/Software)
- 2. [`Arduino AmebaD core 3.0.8+`](https://github.com/ambiot/ambd_arduino) for Realtek RTL8720DN, RTL8722DM and RTM8722CSM. [![GitHub release](https://img.shields.io/github/release/ambiot/ambd_arduino.svg)](https://github.com/ambiot/ambd_arduino/releases/latest)
- 
+ 1. [`Arduino IDE 1.8.19+` for Arduino](https://github.com/arduino/Arduino). [![GitHub release](https://img.shields.io/github/release/arduino/Arduino.svg)](https://github.com/arduino/Arduino/releases/latest)
+ 2. [`Arduino AmebaD core 3.1.1+`](https://github.com/ambiot/ambd_arduino) for Realtek RTL8720DN, RTL8722DM and RTM8722CSM. [![GitHub release](https://img.shields.io/github/release/ambiot/ambd_arduino.svg)](https://github.com/ambiot/ambd_arduino/releases/latest)
+ 3. To use with certain example
+   - [`SimpleTimer library`](https://github.com/jfturcot/SimpleTimer) for [ISR_16_Timers_Array](examples/ISR_16_Timers_Array) and [ISR_16_Timers_Array_Complex](examples/ISR_16_Timers_Array_Complex) examples.
+   
+   
 ---
 ---
 
@@ -156,29 +155,31 @@ Another way to install is to:
 3. Install [**RTL8720_TimerInterrupt** library](https://platformio.org/lib/show/12662/RTL8720_TimerInterrupt) by using [Library Manager](https://platformio.org/lib/show/12662/RTL8720_TimerInterrupt/installation). Search for **RTL8720_TimerInterrupt** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
 4. Please visit documentation for the other options and examples at [Project Configuration File](https://docs.platformio.org/page/projectconf.html)
 
+
 ---
 ---
 
 ### HOWTO Fix `Multiple Definitions` Linker Error
 
-The current library implementation, using **xyz-Impl.h instead of standard xyz.cpp**, possibly creates certain `Multiple Definitions` Linker error in certain use cases. Although it's simple to just modify several lines of code, either in the library or in the application, the library is adding 2 more source directories
+The current library implementation, using `xyz-Impl.h` instead of standard `xyz.cpp`, possibly creates certain `Multiple Definitions` Linker error in certain use cases.
 
-1. **scr_h** for new h-only files
-2. **src_cpp** for standard h/cpp files
+You can include these `.hpp` or `.h` files
 
-besides the standard **src** directory.
+```
+// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
+#include "RTL8720_TimerInterrupt.h"     //https://github.com/khoih-prog/RTL8720_TimerInterrupt
 
-To use the **old standard cpp** way, locate this library' directory, then just 
+// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
+#include "RTL8720_ISR_Timer.hpp"         //https://github.com/khoih-prog/RTL8720_TimerInterrupt
+```
 
-1. **Delete the all the files in src directory.**
-2. **Copy all the files in src_cpp directory into src.**
-3. Close then reopen the application code in Arduino IDE, etc. to recompile from scratch.
+in many files. But be sure to use the following `.h` file **in just 1 `.h`, `.cpp` or `.ino` file**, which must **not be included in any other file**, to avoid `Multiple Definitions` Linker Error
 
-To re-use the **new h-only** way, just 
+```
+// To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
+#include "RTL8720_ISR_Timer.h"           //https://github.com/khoih-prog/RTL8720_TimerInterrupt
+```
 
-1. **Delete the all the files in src directory.**
-2. **Copy the files in src_h directory into src.**
-3. Close then reopen the application code in Arduino IDE, etc. to recompile from scratch.
 
 ---
 ---
@@ -338,7 +339,7 @@ void setup()
  4. [TimerInterruptLEDDemo](examples/TimerInterruptLEDDemo)
  5. [**Change_Interval**](examples/Change_Interval). New
  6. [**ISR_16_Timers_Array_Complex**](examples/ISR_16_Timers_Array_Complex).
- 
+ 7. [**multiFileProject**](examples/multiFileProject). **New**
 
 ---
 ---
@@ -355,12 +356,15 @@ void setup()
 // Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
 // Don't define TIMER_INTERRUPT_DEBUG > 2. Only for special ISR debugging only. Can hang the system.
 #define TIMER_INTERRUPT_DEBUG         2
-#define _TIMERINTERRUPT_LOGLEVEL_     0
+#define _TIMERINTERRUPT_LOGLEVEL_     3
 
+// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
 #include "RTL8720_TimerInterrupt.h"
+
+// To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "RTL8720_ISR_Timer.h"
 
-#include <SimpleTimer.h>              // https://github.com/schinken/SimpleTimer
+#include <SimpleTimer.h>              // https://github.com/jfturcot/SimpleTimer
 
 #ifndef LED_BUILTIN
   #define LED_BUILTIN       PA14
@@ -690,12 +694,14 @@ In this example, 16 independent ISR Timers are used, yet utilized just one Hardw
 
 ```
 Starting ISR_16_Timers_Array_Complex
-RTL8720_TimerInterrupt v1.0.0
+RTL8720_TimerInterrupt v1.1.0
 CPU Frequency = 200 MHz
-Starting ITimer OK, millis() = 109
-SimpleTimer : 2, ms : 10112, Dms : 10003
-Timer : 0, programmed : 5000, actual : 5005
-Timer : 1, programmed : 10000, actual : 10010
+[TISR] _timerNo = 2, _fre (Hz) = 100.00
+[TISR] Request Interval (mS) = 10, _count = 10000
+Starting ITimer OK, millis() = 117
+SimpleTimer : 2, ms : 10120, Dms : 10003
+Timer : 0, programmed : 5000, actual : 4992
+Timer : 1, programmed : 10000, actual : 10004
 Timer : 2, programmed : 15000, actual : 0
 Timer : 3, programmed : 20000, actual : 0
 Timer : 4, programmed : 25000, actual : 0
@@ -710,11 +716,11 @@ Timer : 12, programmed : 65000, actual : 0
 Timer : 13, programmed : 70000, actual : 0
 Timer : 14, programmed : 75000, actual : 0
 Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 20176, Dms : 10064
-Timer : 0, programmed : 5000, actual : 5005
-Timer : 1, programmed : 10000, actual : 10001
-Timer : 2, programmed : 15000, actual : 15006
-Timer : 3, programmed : 20000, actual : 20011
+SimpleTimer : 2, ms : 20184, Dms : 10064
+Timer : 0, programmed : 5000, actual : 5002
+Timer : 1, programmed : 10000, actual : 10003
+Timer : 2, programmed : 15000, actual : 15005
+Timer : 3, programmed : 20000, actual : 20007
 Timer : 4, programmed : 25000, actual : 0
 Timer : 5, programmed : 30000, actual : 0
 Timer : 6, programmed : 35000, actual : 0
@@ -727,12 +733,12 @@ Timer : 12, programmed : 65000, actual : 0
 Timer : 13, programmed : 70000, actual : 0
 Timer : 14, programmed : 75000, actual : 0
 Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 30241, Dms : 10065
-Timer : 0, programmed : 5000, actual : 5005
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15005
-Timer : 3, programmed : 20000, actual : 20011
-Timer : 4, programmed : 25000, actual : 25006
+SimpleTimer : 2, ms : 30249, Dms : 10065
+Timer : 0, programmed : 5000, actual : 5002
+Timer : 1, programmed : 10000, actual : 10004
+Timer : 2, programmed : 15000, actual : 15006
+Timer : 3, programmed : 20000, actual : 20007
+Timer : 4, programmed : 25000, actual : 25009
 Timer : 5, programmed : 30000, actual : 30011
 Timer : 6, programmed : 35000, actual : 0
 Timer : 7, programmed : 40000, actual : 0
@@ -744,15 +750,15 @@ Timer : 12, programmed : 65000, actual : 0
 Timer : 13, programmed : 70000, actual : 0
 Timer : 14, programmed : 75000, actual : 0
 Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 40306, Dms : 10065
-Timer : 0, programmed : 5000, actual : 5005
-Timer : 1, programmed : 10000, actual : 10001
-Timer : 2, programmed : 15000, actual : 15005
-Timer : 3, programmed : 20000, actual : 20001
-Timer : 4, programmed : 25000, actual : 25006
+SimpleTimer : 2, ms : 40314, Dms : 10065
+Timer : 0, programmed : 5000, actual : 5002
+Timer : 1, programmed : 10000, actual : 9994
+Timer : 2, programmed : 15000, actual : 15006
+Timer : 3, programmed : 20000, actual : 19998
+Timer : 4, programmed : 25000, actual : 25009
 Timer : 5, programmed : 30000, actual : 30011
-Timer : 6, programmed : 35000, actual : 35007
-Timer : 7, programmed : 40000, actual : 40012
+Timer : 6, programmed : 35000, actual : 35003
+Timer : 7, programmed : 40000, actual : 40005
 Timer : 8, programmed : 45000, actual : 0
 Timer : 9, programmed : 50000, actual : 0
 Timer : 10, programmed : 55000, actual : 0
@@ -761,74 +767,74 @@ Timer : 12, programmed : 65000, actual : 0
 Timer : 13, programmed : 70000, actual : 0
 Timer : 14, programmed : 75000, actual : 0
 Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 50372, Dms : 10066
-Timer : 0, programmed : 5000, actual : 4996
-Timer : 1, programmed : 10000, actual : 9991
+SimpleTimer : 2, ms : 50380, Dms : 10066
+Timer : 0, programmed : 5000, actual : 5001
+Timer : 1, programmed : 10000, actual : 10003
 Timer : 2, programmed : 15000, actual : 14996
-Timer : 3, programmed : 20000, actual : 20001
-Timer : 4, programmed : 25000, actual : 24997
+Timer : 3, programmed : 20000, actual : 19998
+Timer : 4, programmed : 25000, actual : 24999
 Timer : 5, programmed : 30000, actual : 30011
-Timer : 6, programmed : 35000, actual : 35007
-Timer : 7, programmed : 40000, actual : 40012
+Timer : 6, programmed : 35000, actual : 35003
+Timer : 7, programmed : 40000, actual : 40005
 Timer : 8, programmed : 45000, actual : 45007
-Timer : 9, programmed : 50000, actual : 50003
+Timer : 9, programmed : 50000, actual : 50008
 Timer : 10, programmed : 55000, actual : 0
 Timer : 11, programmed : 60000, actual : 0
 Timer : 12, programmed : 65000, actual : 0
 Timer : 13, programmed : 70000, actual : 0
 Timer : 14, programmed : 75000, actual : 0
 Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 60439, Dms : 10067
-Timer : 0, programmed : 5000, actual : 4995
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 14996
-Timer : 3, programmed : 20000, actual : 19991
-Timer : 4, programmed : 25000, actual : 24997
-Timer : 5, programmed : 30000, actual : 29992
-Timer : 6, programmed : 35000, actual : 35007
-Timer : 7, programmed : 40000, actual : 40012
+SimpleTimer : 2, ms : 60447, Dms : 10067
+Timer : 0, programmed : 5000, actual : 5002
+Timer : 1, programmed : 10000, actual : 10004
+Timer : 2, programmed : 15000, actual : 15005
+Timer : 3, programmed : 20000, actual : 20007
+Timer : 4, programmed : 25000, actual : 24999
+Timer : 5, programmed : 30000, actual : 30001
+Timer : 6, programmed : 35000, actual : 35003
+Timer : 7, programmed : 40000, actual : 40005
 Timer : 8, programmed : 45000, actual : 45007
-Timer : 9, programmed : 50000, actual : 50003
-Timer : 10, programmed : 55000, actual : 55008
-Timer : 11, programmed : 60000, actual : 60003
+Timer : 9, programmed : 50000, actual : 50008
+Timer : 10, programmed : 55000, actual : 55010
+Timer : 11, programmed : 60000, actual : 60012
 Timer : 12, programmed : 65000, actual : 0
 Timer : 13, programmed : 70000, actual : 0
 Timer : 14, programmed : 75000, actual : 0
 Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 70506, Dms : 10067
-Timer : 0, programmed : 5000, actual : 4995
-Timer : 1, programmed : 10000, actual : 10001
-Timer : 2, programmed : 15000, actual : 14996
-Timer : 3, programmed : 20000, actual : 19991
-Timer : 4, programmed : 25000, actual : 24997
-Timer : 5, programmed : 30000, actual : 29992
-Timer : 6, programmed : 35000, actual : 34997
-Timer : 7, programmed : 40000, actual : 40012
+SimpleTimer : 2, ms : 70514, Dms : 10067
+Timer : 0, programmed : 5000, actual : 5002
+Timer : 1, programmed : 10000, actual : 9994
+Timer : 2, programmed : 15000, actual : 15005
+Timer : 3, programmed : 20000, actual : 20007
+Timer : 4, programmed : 25000, actual : 24999
+Timer : 5, programmed : 30000, actual : 30001
+Timer : 6, programmed : 35000, actual : 35003
+Timer : 7, programmed : 40000, actual : 40005
 Timer : 8, programmed : 45000, actual : 45007
-Timer : 9, programmed : 50000, actual : 50003
-Timer : 10, programmed : 55000, actual : 55008
-Timer : 11, programmed : 60000, actual : 60003
-Timer : 12, programmed : 65000, actual : 65009
-Timer : 13, programmed : 70000, actual : 70004
+Timer : 9, programmed : 50000, actual : 50008
+Timer : 10, programmed : 55000, actual : 55010
+Timer : 11, programmed : 60000, actual : 60012
+Timer : 12, programmed : 65000, actual : 65004
+Timer : 13, programmed : 70000, actual : 70006
 Timer : 14, programmed : 75000, actual : 0
 Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 80574, Dms : 10068
-Timer : 0, programmed : 5000, actual : 4995
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15006
-Timer : 3, programmed : 20000, actual : 20001
-Timer : 4, programmed : 25000, actual : 25006
-Timer : 5, programmed : 30000, actual : 29992
-Timer : 6, programmed : 35000, actual : 34997
-Timer : 7, programmed : 40000, actual : 39992
+SimpleTimer : 2, ms : 80582, Dms : 10068
+Timer : 0, programmed : 5000, actual : 5002
+Timer : 1, programmed : 10000, actual : 10004
+Timer : 2, programmed : 15000, actual : 14996
+Timer : 3, programmed : 20000, actual : 19998
+Timer : 4, programmed : 25000, actual : 25000
+Timer : 5, programmed : 30000, actual : 30001
+Timer : 6, programmed : 35000, actual : 35003
+Timer : 7, programmed : 40000, actual : 40005
 Timer : 8, programmed : 45000, actual : 45007
-Timer : 9, programmed : 50000, actual : 50003
-Timer : 10, programmed : 55000, actual : 55008
-Timer : 11, programmed : 60000, actual : 60003
-Timer : 12, programmed : 65000, actual : 65009
-Timer : 13, programmed : 70000, actual : 70004
-Timer : 14, programmed : 75000, actual : 75009
-Timer : 15, programmed : 80000, actual : 80004
+Timer : 9, programmed : 50000, actual : 50008
+Timer : 10, programmed : 55000, actual : 55010
+Timer : 11, programmed : 60000, actual : 60012
+Timer : 12, programmed : 65000, actual : 65004
+Timer : 13, programmed : 70000, actual : 70006
+Timer : 14, programmed : 75000, actual : 75008
+Timer : 15, programmed : 80000, actual : 80010
 ```
 
 ---
@@ -838,52 +844,68 @@ Timer : 15, programmed : 80000, actual : 80004
 The following is the sample terminal output when running example [**TimerInterruptTest**](examples/TimerInterruptTest) on **Rtlduino RTL8720DN (BW16)** to demonstrate how to start/stop Hardware Timers.
 
 ```
+
 Starting TimerInterruptTest
-RTL8720_TimerInterrupt v1.0.0
+RTL8720_TimerInterrupt v1.1.0
 CPU Frequency = 200 MHz
-Starting ITimer0 OK, millis() = 111
-Starting  ITimer1 OK, millis() = 114
-ITimer0 called, millis() = 1108
-ITimer0 called, millis() = 2106
-ITimer0 called, millis() = 3104
-ITimer1 called, millis() = 3105
-ITimer0 called, millis() = 4100
+[TISR] _timerNo = 2, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+Starting ITimer0 OK, millis() = 119
+[TISR] _timerNo = 3, _fre (Hz) = 0.33
+[TISR] Request Interval (mS) = 3000, _count = 3000000
+Starting  ITimer1 OK, millis() = 131
+ITimer0 called, millis() = 1055
+ITimer0 called, millis() = 2053
+ITimer0 called, millis() = 2989
+ITimer1 called, millis() = 2999
+ITimer0 called, millis() = 3924
+ITimer0 called, millis() = 4860
 Stop ITimer0, millis() = 5003
-ITimer1 called, millis() = 6101
-ITimer1 called, millis() = 9099
+ITimer1 called, millis() = 5870
+ITimer1 called, millis() = 8681
 Start ITimer0, millis() = 10004
-ITimer0 called, millis() = 11004
-ITimer0 called, millis() = 12003
-ITimer1 called, millis() = 12095
-ITimer0 called, millis() = 13001
-ITimer0 called, millis() = 14000
-ITimer0 called, millis() = 14999
+[TISR] _timerNo = 2, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+ITimer0 called, millis() = 10951
+ITimer1 called, millis() = 11493
+ITimer0 called, millis() = 11886
+ITimer0 called, millis() = 12822
+ITimer0 called, millis() = 13757
+ITimer1 called, millis() = 14299
+ITimer0 called, millis() = 14692
 Stop ITimer1, millis() = 15003
 Stop ITimer0, millis() = 15005
 Start ITimer0, millis() = 20006
-ITimer0 called, millis() = 21006
-ITimer0 called, millis() = 22005
-ITimer0 called, millis() = 23004
-ITimer0 called, millis() = 24003
-ITimer0 called, millis() = 25002
+[TISR] _timerNo = 2, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+ITimer0 called, millis() = 21015
+ITimer0 called, millis() = 21953
+ITimer0 called, millis() = 22889
+ITimer0 called, millis() = 23825
+ITimer0 called, millis() = 24761
 Stop ITimer0, millis() = 25007
 Start ITimer1, millis() = 30004
-Start ITimer0, millis() = 30008
-ITimer0 called, millis() = 31008
-ITimer0 called, millis() = 32007
-ITimer1 called, millis() = 33001
-ITimer0 called, millis() = 33004
-ITimer0 called, millis() = 34003
-ITimer0 called, millis() = 35002
-Stop ITimer0, millis() = 35009
-ITimer1 called, millis() = 35997
-ITimer1 called, millis() = 38996
-Start ITimer0, millis() = 40010
-ITimer0 called, millis() = 41010
-ITimer1 called, millis() = 41993
-ITimer0 called, millis() = 42008
-ITimer0 called, millis() = 43007
-
+[TISR] _timerNo = 3, _fre (Hz) = 0.33
+[TISR] Request Interval (mS) = 3000, _count = 3000000
+Start ITimer0, millis() = 30015
+[TISR] _timerNo = 2, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+ITimer0 called, millis() = 30962
+ITimer0 called, millis() = 31898
+ITimer1 called, millis() = 32824
+ITimer0 called, millis() = 32833
+ITimer0 called, millis() = 33769
+ITimer0 called, millis() = 34705
+Stop ITimer0, millis() = 35016
+ITimer1 called, millis() = 35692
+ITimer1 called, millis() = 38504
+Start ITimer0, millis() = 40017
+[TISR] _timerNo = 2, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+ITimer0 called, millis() = 40964
+ITimer1 called, millis() = 41315
+ITimer0 called, millis() = 41898
+ITimer0 called, millis() = 42834
 ```
 
 ---
@@ -894,53 +916,38 @@ The following is the sample terminal output when running example [**Argument_Non
 
 ```
 Starting Argument_None
-RTL8720_TimerInterrupt v1.0.0
+RTL8720_TimerInterrupt v1.1.0
 CPU Frequency = 200 MHz
-Starting ITimer0 OK, millis() = 108
-Starting ITimer1 OK, millis() = 111
-Using timer = 2, ITimer0: millis() = 1108, delta = 1000
-Using timer = 2, ITimer0: millis() = 2104, delta = 996
-Using timer = 2, ITimer0: millis() = 3100, delta = 996
-Using timer = 2, ITimer0: millis() = 4096, delta = 996
-Using timer = 2, ITimer0: millis() = 5092, delta = 996
-Using timer = 3, ITimer1: millis() = 5093, delta = 4982
-Using timer = 2, ITimer0: millis() = 6084, delta = 992
-Using timer = 2, ITimer0: millis() = 7080, delta = 996
-Using timer = 2, ITimer0: millis() = 8076, delta = 996
-Using timer = 2, ITimer0: millis() = 9072, delta = 996
-Using timer = 2, ITimer0: millis() = 10068, delta = 996
-Using timer = 3, ITimer1: millis() = 10069, delta = 4976
-Using timer = 2, ITimer0: millis() = 11060, delta = 992
-Using timer = 2, ITimer0: millis() = 12056, delta = 996
-Using timer = 2, ITimer0: millis() = 13052, delta = 996
-Using timer = 2, ITimer0: millis() = 14048, delta = 996
-Using timer = 2, ITimer0: millis() = 15044, delta = 996
-Using timer = 3, ITimer1: millis() = 15045, delta = 4976
-Using timer = 2, ITimer0: millis() = 16036, delta = 992
-Using timer = 2, ITimer0: millis() = 17032, delta = 996
-Using timer = 2, ITimer0: millis() = 18028, delta = 996
-Using timer = 2, ITimer0: millis() = 19024, delta = 996
-Using timer = 2, ITimer0: millis() = 20020, delta = 996
-Using timer = 3, ITimer1: millis() = 20021, delta = 4976
-Using timer = 2, ITimer0: millis() = 21012, delta = 992
-Using timer = 2, ITimer0: millis() = 22008, delta = 996
-Using timer = 2, ITimer0: millis() = 23004, delta = 996
-Using timer = 2, ITimer0: millis() = 24000, delta = 996
-Using timer = 2, ITimer0: millis() = 24996, delta = 996
-Using timer = 3, ITimer1: millis() = 24997, delta = 4976
-Using timer = 2, ITimer0: millis() = 25988, delta = 992
-Using timer = 2, ITimer0: millis() = 26985, delta = 997
-Using timer = 2, ITimer0: millis() = 27982, delta = 997
-Using timer = 2, ITimer0: millis() = 28979, delta = 997
-Using timer = 2, ITimer0: millis() = 29976, delta = 997
-Using timer = 3, ITimer1: millis() = 29977, delta = 4980
-Using timer = 2, ITimer0: millis() = 30969, delta = 993
-Using timer = 2, ITimer0: millis() = 31966, delta = 997
-Using timer = 2, ITimer0: millis() = 32962, delta = 996
-Using timer = 2, ITimer0: millis() = 33958, delta = 996
-Using timer = 2, ITimer0: millis() = 34954, delta = 996
-Using timer = 3, ITimer1: millis() = 34955, delta = 4978
-
+[TISR] _timerNo = 2, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+Starting ITimer0 OK, millis() = 116
+[TISR] _timerNo = 3, _fre (Hz) = 0.20
+[TISR] Request Interval (mS) = 5000, _count = 5000000
+Starting ITimer1 OK, millis() = 127
+Using timer = 2, ITimer0: millis() = 1116, delta = 1000
+Using timer = 2, ITimer0: millis() = 2112, delta = 996
+Using timer = 2, ITimer0: millis() = 3108, delta = 996
+Using timer = 2, ITimer0: millis() = 4104, delta = 996
+Using timer = 2, ITimer0: millis() = 5100, delta = 996
+Using timer = 3, ITimer1: millis() = 5107, delta = 4980
+Using timer = 2, ITimer0: millis() = 6092, delta = 992
+Using timer = 2, ITimer0: millis() = 7088, delta = 996
+Using timer = 2, ITimer0: millis() = 8084, delta = 996
+Using timer = 2, ITimer0: millis() = 9080, delta = 996
+Using timer = 2, ITimer0: millis() = 10076, delta = 996
+Using timer = 3, ITimer1: millis() = 10083, delta = 4976
+Using timer = 2, ITimer0: millis() = 11068, delta = 992
+Using timer = 2, ITimer0: millis() = 12064, delta = 996
+Using timer = 2, ITimer0: millis() = 13060, delta = 996
+Using timer = 2, ITimer0: millis() = 14056, delta = 996
+Using timer = 2, ITimer0: millis() = 15052, delta = 996
+Using timer = 3, ITimer1: millis() = 15059, delta = 4976
+Using timer = 2, ITimer0: millis() = 16044, delta = 992
+Using timer = 2, ITimer0: millis() = 17040, delta = 996
+Using timer = 2, ITimer0: millis() = 18036, delta = 996
+Using timer = 2, ITimer0: millis() = 19032, delta = 996
+Using timer = 2, ITimer0: millis() = 20028, delta = 996
+Using timer = 3, ITimer1: millis() = 20035, delta = 4976
 ```
 
 ---
@@ -951,21 +958,27 @@ The following is the sample terminal output when running example [Change_Interva
 
 ```
 Starting Change_Interval
-RTL8720_TimerInterrupt v1.0.0
+RTL8720_TimerInterrupt v1.1.0
 CPU Frequency = 200 MHz
-Starting  Timer0 OK, millis() = 111
-Starting ITimer1 OK, millis() = 114
+[TISR] _timerNo = 2, _fre (Hz) = 2.00
+[TISR] Request Interval (mS) = 500, _count = 500000
+Starting ITimer0 OK, millis() = 119
+[TISR] _timerNo = 3, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+Starting ITimer1 OK, millis() = 130
 Time = 10001, Timer0Count = 19, Timer1Count = 9
 Time = 20002, Timer0Count = 39, Timer1Count = 19
+[TISR] _timerNo = 2, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
+[TISR] _timerNo = 3, _fre (Hz) = 0.50
+[TISR] Request Interval (mS) = 2000, _count = 2000000
 Changing Interval, Timer0 = 1000,  Timer1 = 2000
-Time = 30003, Timer0Count = 48, Timer1Count = 24
-Time = 40004, Timer0Count = 58, Timer1Count = 29
-Changing Interval, Timer0 = 500,  Timer1 = 1000
-Time = 50005, Timer0Count = 78, Timer1Count = 39
-Time = 60006, Timer0Count = 98, Timer1Count = 49
-Changing Interval, Timer0 = 1000,  Timer1 = 2000
-Time = 70007, Timer0Count = 108, Timer1Count = 54
-Time = 80008, Timer0Count = 118, Timer1Count = 59
+Time = 30003, Timer0Count = 48, Timer1Count = 23
+Time = 40004, Timer0Count = 58, Timer1Count = 28
+[TISR] _timerNo = 2, _fre (Hz) = 2.00
+[TISR] Request Interval (mS) = 500, _count = 500000
+[TISR] _timerNo = 3, _fre (Hz) = 1.00
+[TISR] Request Interval (mS) = 1000, _count = 1000000
 Changing Interval, Timer0 = 500,  Timer1 = 1000
 ```
 
@@ -997,21 +1010,6 @@ Sometimes, the library will only work if you update the board core to the latest
 ---
 ---
 
-## Releases
-
-### Releases v1.0.0
-
-1. Initial release to support **RTL8720DN, RTL8722DM, RTM8722CSM, etc.** boards
-
----
-
-#### Supported Boards
-
-1. **RTL8720DN, RTL8722DM, RTM8722CSM, etc. boards**
-
----
----
-
 ### Issues
 
 Submit issues to: [RTL8720_TimerInterrupt issues](https://github.com/khoih-prog/RTL8720_TimerInterrupt/issues)
@@ -1031,6 +1029,9 @@ Submit issues to: [RTL8720_TimerInterrupt issues](https://github.com/khoih-prog/
 3. Longer time interval
 4. Similar features for remaining Arduino boards such as ESP32, ESP8266, SAMD21, SAMD51, nRF52, mbed-nRF52, Teensy, etc.
 5. Add Table of Contents
+6. Fix `multiple-definitions` linker error
+7. Optimize library code by using `reference-passing` instead of `value-passing`
+
 
 ---
 ---

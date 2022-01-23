@@ -11,19 +11,6 @@
   with other cores' tasks. The accuracy is nearly perfect compared to software timers. The most important feature is they're 
   ISR-based timers. Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
-
-  Based on SimpleTimer - A timer library for Arduino.
-  Author: mromani@ottotecnica.com
-  Copyright (c) 2010 OTTOTECNICA Italy
-
-  Based on BlynkTimer.h
-  Author: Volodymyr Shymanskyy
-
-  Version: 1.0.0
-
-  Version Modified By   Date      Comments
-  ------- -----------  ---------- -----------
-  1.0.0   K Hoang      30/10/2020 Initial coding for RTL8720DN, RTL8722DM and RTL8722CSM
 *****************************************************************************************************************************/
 /*
    Notes:
@@ -46,8 +33,9 @@
 // Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
 // Don't define TIMER_INTERRUPT_DEBUG > 2. Only for special ISR debugging only. Can hang the system.
 #define TIMER_INTERRUPT_DEBUG         1
-#define _TIMERINTERRUPT_LOGLEVEL_     1
+#define _TIMERINTERRUPT_LOGLEVEL_     3
 
+// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
 #include "RTL8720_TimerInterrupt.h"
 
 void TimerHandler0(uint32_t timerNo)
