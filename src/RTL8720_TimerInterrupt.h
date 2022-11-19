@@ -7,8 +7,8 @@
   Licensed under MIT license
 
   Now even you use all these new 16 ISR-based timers,with their maximum interval practically unlimited (limited only by
-  unsigned long miliseconds), you just consume only one RTL8720DN, RTL8722DM and RTL8722CSM timer and avoid conflicting 
-  with other cores' tasks. The accuracy is nearly perfect compared to software timers. The most important feature is they're 
+  unsigned long miliseconds), you just consume only one RTL8720DN, RTL8722DM and RTL8722CSM timer and avoid conflicting
+  with other cores' tasks. The accuracy is nearly perfect compared to software timers. The most important feature is they're
   ISR-based timers. Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
@@ -38,12 +38,12 @@
 
 #ifndef RTL8720_TIMER_INTERRUPT_VERSION
   #define RTL8720_TIMER_INTERRUPT_VERSION           "RTL8720_TimerInterrupt v1.1.0"
-  
+
   #define RTL8720_TIMER_INTERRUPT_VERSION_MAJOR     1
   #define RTL8720_TIMER_INTERRUPT_VERSION_MINOR     1
   #define RTL8720_TIMER_INTERRUPT_VERSION_PATCH     0
 
-  #define RTL8720_TIMER_INTERRUPT_VERSION_INT       1001000  
+  #define RTL8720_TIMER_INTERRUPT_VERSION_INT       1001000
 #endif
 
 #if defined(ARDUINO)
@@ -58,9 +58,9 @@
 
 #ifdef __cplusplus
 
-extern "C" 
+extern "C"
 {
-  #include "timer_api.h"
+#include "timer_api.h"
 }
 #endif
 
@@ -75,7 +75,7 @@ typedef enum
 
 // TIMER0, reserved and used in us_tick(), wait_ms() functions. Users are not recommended to use
 // TIMER1, used in APP_TIM_ID. Users are not recommended to use
-static uint32_t timer_mapping[GTIMER_MAX] = 
+static uint32_t timer_mapping[GTIMER_MAX] =
 {
   TIMER0,
   TIMER1,
@@ -108,14 +108,14 @@ class RTL8720TimerInterrupt
       {
         return;
       }
-    
+
       _timer = timer;
-      
+
       gtimer_init(&_timerObj, timer_mapping[_timer]);
-      
+
       _callback = NULL;
     };
-    
+
     ~RTL8720TimerInterrupt()
     {
     }
@@ -126,16 +126,16 @@ class RTL8720TimerInterrupt
       if ( (_timer >= GTIMER_MAX) )
       {
         TISR_LOGERROR1(F("RTL8720TimerInterrupt init error, _timer >= "), GTIMER_MAX);
-        
+
         return false;
       }
-      
+
       // select timer frequency is 1MHz for better accuracy. We don't use 16-bit prescaler for now.
       // Will use later if very low frequency is needed.
       _frequency  = frequency;
       _timerCount = (uint32_t) (1000000.0f / _frequency);
       _callback   = callback;
-      
+
       TISR_LOGWARN3(F("_timerNo = "), _timer, F(", _fre (Hz) = "), _frequency);
       TISR_LOGWARN3(F("Request Interval (mS) = "), _timerCount / 1000, F(", _count = "), (uint32_t) (_timerCount));
 
